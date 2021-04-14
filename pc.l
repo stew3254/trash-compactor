@@ -18,6 +18,24 @@ whitespace  [ \t]+
 "program"       { fprintf(stderr, "[PROGRAM]"); return PROGRAM; }
 "begin"         { fprintf(stderr, "[BEGIN]"); return BBEGIN; }
 "end"           { fprintf(stderr, "[END]"); return END; }
+"if"            { fprintf(stderr, "[IF]"); return IF; }
+"then"          { fprintf(stderr, "[THEN]"); return THEN; }
+"else"          { fprintf(stderr, "[ELSE]"); return ELSE; }
+"while"         { fprintf(stderr, "[WHILE]"); return WHILE; }
+"do"            { fprintf(stderr, "[DO]"); return DO; }
+
+"var"           { fprintf(stderr, "[VAR]"); return VAR; }
+"array"         { fprintf(stderr, "[ARRAY]"); return ARRAY; }
+"of"            { fprintf(stderr, "[OF]"); return OF; }
+".."            { fprintf(stderr, "[DOTDOT]"); return DOTDOT; }
+
+"integer"       { fprintf(stderr, "[INTEGER]"); return INTEGER; }
+"real"          { fprintf(stderr, "[REAL]"); return REAL; }
+
+"function"      { fprintf(stderr, "[FUNCTION]"); return FUNCTION; }
+"procedure"     { fprintf(stderr, "[PROCEDURE]"); return PROCEDURE; }
+
+":="            { fprintf(stderr, "[ASSIGNOP]"); return ASSIGNOP; }
 
 "<"             { fprintf(stderr, "[RELOP:%c]", yylval.opval = LT); return RELOP; }
 "<="            { fprintf(stderr, "[RELOP:%c]", yylval.opval = LE); return RELOP; }

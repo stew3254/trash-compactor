@@ -14,7 +14,7 @@ debug:
 	gdb dragon
 
 run: all
-	./dragon pascal/test.pal
+	./dragon pascal/t1-1a.p
 
 all: dragon
 

@@ -73,9 +73,23 @@ extern int yydebug;
     SLASH = 274,                   /* SLASH  */
     AND = 275,                     /* AND  */
     NOT = 276,                     /* NOT  */
-    PROGRAM = 277,                 /* PROGRAM  */
-    BBEGIN = 278,                  /* BBEGIN  */
-    END = 279                      /* END  */
+    ASSIGNOP = 277,                /* ASSIGNOP  */
+    PROGRAM = 278,                 /* PROGRAM  */
+    BBEGIN = 279,                  /* BBEGIN  */
+    END = 280,                     /* END  */
+    IF = 281,                      /* IF  */
+    THEN = 282,                    /* THEN  */
+    ELSE = 283,                    /* ELSE  */
+    WHILE = 284,                   /* WHILE  */
+    DO = 285,                      /* DO  */
+    VAR = 286,                     /* VAR  */
+    ARRAY = 287,                   /* ARRAY  */
+    OF = 288,                      /* OF  */
+    INTEGER = 289,                 /* INTEGER  */
+    REAL = 290,                    /* REAL  */
+    FUNCTION = 291,                /* FUNCTION  */
+    PROCEDURE = 292,               /* PROCEDURE  */
+    DOTDOT = 293                   /* DOTDOT  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -103,9 +117,23 @@ extern int yydebug;
 #define SLASH 274
 #define AND 275
 #define NOT 276
-#define PROGRAM 277
-#define BBEGIN 278
-#define END 279
+#define ASSIGNOP 277
+#define PROGRAM 278
+#define BBEGIN 279
+#define END 280
+#define IF 281
+#define THEN 282
+#define ELSE 283
+#define WHILE 284
+#define DO 285
+#define VAR 286
+#define ARRAY 287
+#define OF 288
+#define INTEGER 289
+#define REAL 290
+#define FUNCTION 291
+#define PROCEDURE 292
+#define DOTDOT 293
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -118,7 +146,7 @@ union YYSTYPE
   int opval; // ADDOP, MULOP
   char *sval; // ID
 
-#line 122 "y.tab.h"
+#line 150 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

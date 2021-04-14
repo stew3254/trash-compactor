@@ -29,33 +29,103 @@ extern FILE *yyin;
 %token <opval> MULOP
 %token STAR SLASH AND
 %token NOT
-
+%token ASSIGNOP
 
 %token PROGRAM
-%token BBEGIN
-%token END
+%token BBEGIN END
+%token IF THEN ELSE
+%token WHILE DO
+
+%token VAR
+%token ARRAY OF
+%token INTEGER REAL
+%token FUNCTION PROCEDURE
+
+%token DOTDOT
 
 %%
 
 start: PROGRAM ID '(' ')' ';'
   BBEGIN
-    expr_list
+    expression_list
   END
   '.'
   ;
 
-expr_list: expr expr_list
+identifier_list: ID
+  | identifier_list ',' ID
+  ;
+
+declarations: declarations VAR identifier_list ':' type ';'
+  |
+  ;
+
+type: standard_type
+  | ARRAY '[' INUM DOTDOT INUM ']' OF standard_type
+  ;
+
+standard_type: INTEGER
+  | REAL
+  ;
+
+subprogram_declarations: subprogram_declarations subprogram_declaration ';'
+  |
+  ;
+
+subprogram_declaration: subprogram_head declarations subprogram_declarations compound_statement
+  ;
+
+subprogram_head: FUNCTION ID arguments ':' standard_type ';'
+  | PROCEDURE ID arguments ';'
+  ;
+
+arguments: '(' parameter_list ')'
+  |
+  ;
+
+parameter_list: identifier_list ':' type
+  | parameter_list ';' identifier_list ':' type
+  ;
+
+compound_statement: BBEGIN optional_statements END
+  ;
+
+optional_statements: statement_list
+  |
+  ;
+
+statement_list: statement
+  | statement_list ';' statement
+  ;
+
+statement: variable ASSIGNOP expression
+  | procedure_statement
+  | compound_statement
+  | IF expression THEN statement ELSE statement
+  | IF expression THEN statement
+  | WHILE expression DO statement
+  ;
+
+variable: ID
+  | ID '[' expression ']'
+  ;
+
+procedure_statement: ID
+  | ID '(' expression_list ')'
+  ;
+
+expression_list: expression expression_list
   |
   ;
 
 
-expr: simple_expr
-  | simple_expr RELOP simple_expr
+expression: simple_expression
+  | simple_expression RELOP simple_expression
   ;
 
-simple_expr: term
+simple_expression: term
   | ADDOP term
-  | simple_expr ADDOP term
+  | simple_expression ADDOP term
   ;
 
 term: factor
@@ -63,11 +133,11 @@ term: factor
   ;
 
 factor: ID
-  | ID '(' expr_list ')'
-  | ID '[' expr ']'
+  | ID '(' expression_list ')'
+  | ID '[' expression ']'
   | INUM
   | RNUM
-  | '(' expr ')'
+  | '(' expression ')'
   | NOT factor
   ;
 
@@ -75,7 +145,6 @@ factor: ID
 
 int main(int argc, char **argv) {
   if (argc > 1) {
-    fprintf(stderr, "I should be working\n");
     yyin = fopen(argv[1], "r");
   }
   return yyparse();
