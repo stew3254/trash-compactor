@@ -1,36 +1,34 @@
 CC = gcc
 YACC = yacc
 LEX = flex
-CFLAGS = -g
+CFLAGS = -O3 -std=c11
 LFLAGS = -l
 YFLAGS = -dv
-OBJECTS =
-LDFLAGS = #"-L/usr/local/opt/flex/lib"
+TEST_OBJECTS = hashmap.o tree.o
+DRAGON_OBJECTS = lex.yy.o y.tab.o hashmap.o tree.o
+LDFLAGS ="-L/usr/local/opt/flex/lib"
 LDLIBS = -lfl
 
-.PHONY: all
+.PHONY: clean dragon
 
-debug:
-	gdb dragon
-
-run: all
-	./dragon pascal/t1-1a.p
-
-all: dragon
-
-dragon: $(OBJECTS) y.tab.o lex.yy.o 
+dragon: $(DRAGON_OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
+run: dragon
+	./dragon
+
+test: $(TEST_OBJECTS)
+	$(CC) $(CFLAGS) -o $@ $^
+
+y.tab.h y.tab.c: pc.y tree.c
+	$(YACC) $(YFLAGS) pc.y
+
+lex.yy.c: y.tab.h pc.l tree.c
+	$(LEX) $(LFLAGS) pc.l
+
 %.o: %.c
-	$(CC) $(CFLAGS) -c $^
+	$(CC) $(CFLAGS) -c $<
 
-y.tab.c: pc.y
-	$(YACC) $(YFLAGS) $^
-
-lex.yy.c: pc.l
-	$(LEX) $(LFLAGS) $^
-
-.PHONY: clean
 clean:
-	rm dragon lex.yy.c y.* *.o
+	rm dragon test lex.yy.c y.* *.o
 

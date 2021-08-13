@@ -1,6 +1,7 @@
 #ifndef vec_h
 #define vec_h
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
