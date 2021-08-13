@@ -5,7 +5,7 @@ CFLAGS = -O3 -std=c11
 LFLAGS = -l
 YFLAGS = -dv
 TEST_OBJECTS = hashmap.o tree.o
-DRAGON_OBJECTS = lex.yy.o y.tab.o hashmap.o tree.o
+DRAGON_OBJECTS = lex.yy.o y.tab.o avl.o list.o tree.o hashmap.o
 LDFLAGS ="-L/usr/local/opt/flex/lib"
 LDLIBS = -lfl
 
@@ -20,10 +20,10 @@ run: dragon
 test: $(TEST_OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $^
 
-y.tab.h y.tab.c: pc.y tree.c
+y.tab.h y.tab.c: pc.y
 	$(YACC) $(YFLAGS) pc.y
 
-lex.yy.c: y.tab.h pc.l tree.c
+lex.yy.c: y.tab.h pc.l
 	$(LEX) $(LFLAGS) pc.l
 
 %.o: %.c

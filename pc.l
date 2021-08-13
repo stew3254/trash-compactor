@@ -5,47 +5,30 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include "tree.h"
+#include "hashmap.h"
 #include "y.tab.h"
-
 %}
 
-number      [0-9]+
+number  	  [0-9]+
 ident       [a-z]+
 whitespace  [ \t]+
 comment     \(\*.*?\*\)
 
 %%
 
-{
-whitespace}    { ;}
-{
-comment}       { ;}
+{whitespace}    {;}
+{comment}       {;}
 
 
-"program"       {
-fprintf(stderr,
-"[PROGRAM]"); return PROGRAM; }
-"begin"         {
-fprintf(stderr,
-"[BEGIN]"); return BBEGIN; }
-"end"           {
-fprintf(stderr,
-"[END]"); return END; }
-"if"            {
-fprintf(stderr,
-"[IF]"); return IF; }
-"then"          {
-fprintf(stderr,
-"[THEN]"); return THEN; }
-"else"          {
-fprintf(stderr,
-"[ELSE]"); return ELSE; }
-"while"         {
-fprintf(stderr,
-"[WHILE]"); return WHILE; }
-"do"            {
-fprintf(stderr,
-"[DO]"); return DO; }
+"program"       { fprintf(stderr, "[PROGRAM]"); return PROGRAM; }
+"begin"         { fprintf(stderr, "[BEGIN]"); return BBEGIN; }
+"end"           { fprintf(stderr, "[END]"); return END; }
+"if"            { fprintf(stderr, "[IF]"); return IF; }
+"then"          { fprintf(stderr, "[THEN]"); return THEN; }
+"else"          { fprintf(stderr, "[ELSE]"); return ELSE; }
+"while"         { fprintf(stderr, "[WHILE]"); return WHILE; }
+"do"            { fprintf(stderr, "[DO]"); return DO; }
 
 "var"           { fprintf(stderr, "[VAR]"); return VAR; }
 "array"         { fprintf(stderr, "[ARRAY]"); return ARRAY; }

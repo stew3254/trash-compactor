@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "tree.h"
 #include "hashmap.h"
+#include "tree.h"
 #include "y.tab.h"
 
 int yylex();
@@ -186,7 +186,7 @@ expression: simple_expression
     { $$ = $1; }
   | simple_expression RELOP simple_expression
 //    { $$ = tree_make_from(symbol_new(RELOP), $1, $3); ((symbol *) $$->e)->attribute.opval = $2; }
-    { $$ = tree_make_from(symbol_new(RELOP), $1, $3); printf("%d", typeof($$)); }
+    { $$ = tree_make_from(symbol_new(RELOP), $1, $3); }
   ;
 
 simple_expression: term
