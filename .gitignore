@@ -3,5 +3,9 @@ cmake-build-debug/
 
 dragon
 
+y.tab.*
+lex.yy.*
+
 *.o
 *.output
+*.gch
