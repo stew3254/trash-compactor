@@ -8,7 +8,6 @@
 #include "y.tab.h"
 
 int yylex();
-
 int yyerror(char *msg);
 
 hashmap *symbol_table;
@@ -31,7 +30,7 @@ symbol *symbol_new(int type) {
 
 // TODO fix this when you can tell it's a string for proper string copy
 void *symbol_copy(const void *e) {
-  symbol *s = (symbol *) e;
+  symbol *s = (symbol*) e;
   // Create the new symbol
   symbol *new_s = symbol_new(s->type);
   new_s->attribute.sval = s->attribute.sval;
@@ -49,12 +48,12 @@ extern FILE *yyin;
 %}
 
 %union {
-    int ival; // INUM
-    float rval; // RNUM
-    int opval; // ADDOP, MULOP
-    char *sval; // ID
+  int ival; // INUM
+  float rval; // RNUM
+  int opval; // ADDOP, MULOP
+  char *sval; // ID
 
-    tree_node *tval; // Tree node
+  tree_node *tval; // Tree node
 };
 
 // Tokens
@@ -84,63 +83,44 @@ extern FILE *yyin;
 %token DOTDOT
 
 // Types for grammar rules
-%
-type <tval> start
-%
-type <tval> identifier_list
-%
-type <tval> declarations
-%
-type <tval> type
-%
-type <tval> standard_type
-%
-type <tval> subprogram_declarations
-%
-type <tval> subprogram_declaration
-%
-type <tval> subprogram_head
-%
-type <tval> arguments
-%
-type <tval> parameter_list
-%
-type <tval> compound_statement
-%
-type <tval> optional_statement
-%
-type <tval> statement_list
-%
-type <tval> statement
-%
-type <tval> variable
-%
-type <tval> for_loop
-%
-type <tval> procedure_statement
-%
-type <tval> expression_list
-%
-type <tval> expression
-%
-type <tval> simple_expression
-%
-type <tval> term
-%
-type <tval> factor
+%type <tval> start
+%type <tval> identifier_list
+%type <tval> declarations
+%type <tval> type
+%type <tval> standard_type
+%type <tval> subprogram_declarations
+%type <tval> subprogram_declaration
+%type <tval> subprogram_head
+%type <tval> arguments
+%type <tval> parameter_list
+%type <tval> compound_statement
+%type <tval> optional_statement
+%type <tval> statement_list
+%type <tval> statement
+%type <tval> variable
+%type <tval> for_loop
+%type <tval> procedure_statement
+%type <tval> expression_list
+%type <tval> expression
+%type <tval> simple_expression
+%type <tval> term
+%type <tval> factor
 %%
 
 start: PROGRAM ID '(' identifier_list ')' ';'
-declarations
+  declarations
   subprogram_declarations
-compound_statement
-'.';
+  compound_statement
+  '.'
+  ;
 
 identifier_list: ID
-| identifier_list ',' ID;
+  | identifier_list ',' ID
+  ;
 
 declarations: declarations VAR identifier_list ':' type ';'
-|;
+  |
+  ;
 
 type: standard_type
   | ARRAY '[' INUM DOTDOT INUM ']' OF standard_type
@@ -189,73 +169,55 @@ statement: variable ASSIGNOP expression
   ;
 
 variable: ID
-| ID '[' expression ']';
+  | ID '[' expression ']'
+  ;
 
 procedure_statement: ID
-| ID '(' expression_list ')';
+  | ID '(' expression_list ')'
+  ;
 
-expression_list:
-expression expression_list
-  {$$ = $1;}
-| expression_list ',' expression
-{
-$$ = tree_make_from(symbol_new(COMMA), $1, $3);
-};
+expression_list: expression expression_list
+    { $$ = $1; }
+  | expression_list ',' expression
+	{ $$ = tree_make_from(symbol_new(COMMA), $1, $3); }
+  ;
 
 expression: simple_expression
-{
-$$ = $1;
-}
-| simple_expression RELOP simple_expression
+    { $$ = $1; }
+  | simple_expression RELOP simple_expression
 //    { $$ = tree_make_from(symbol_new(RELOP), $1, $3); ((symbol *) $$->e)->attribute.opval = $2; }
-{
-$$ = tree_make_from(symbol_new(RELOP), $1, $3);
-printf("%d", typeof($$)); };
+    { $$ = tree_make_from(symbol_new(RELOP), $1, $3); printf("%d", typeof($$)); }
+  ;
 
 simple_expression: term
-{
-$$ = $1;
-}
-| ADDOP term
+    { $$ = $1; }
+  | ADDOP term
 //    { $$ = tree_make_from(symbol_new(ADDOP), $2, NULL); ((symbol *) $$->e)->attribute.opval = $1; }
-| simple_expression ADDOP
-term
+  | simple_expression ADDOP term
 //    { $$ = tree_make_from(symbol_new(ADDOP), $1, $3); ((symbol *) $$->e)->attribute.opval = $2; }
-;
+  ;
 
 term: factor
-{
-$$ = $1;
-}
-| term MULOP
-factor
+    { $$ = $1; }
+  | term MULOP factor
 //    { $$ = tree_make_from(MULOP, $1, $3); $$->e.opval = $2; }
-;
+  ;
 
 factor: ID
-{
-$$ = NULL;
-}
-| ID '(' expression_list ')'
-{
-$$ = NULL;
-}
-| ID '[' expression ']'
-{
-$$ = NULL;
-}
-| INUM
+    { $$ = NULL; }
+  | ID '(' expression_list ')'
+    { $$ = NULL; }
+  | ID '[' expression ']'
+    { $$ = NULL; }
+  | INUM
 //    { $$ = tree_make_from(INUM, NULL, NULL); $$->e.ival = $1; }
-| RNUM
+  | RNUM
 //    { $$ = tree_make_from(RNUM, NULL, NULL); $$->e.rval = $1; }
-| '(' expression ')'
-{
-$$ = $2;
-}
-| NOT factor
-{
-$$ = NULL;
-};
+  | '(' expression ')'
+    { $$ = $2; }
+  | NOT factor
+    { $$ = NULL; }
+  ;
 
 %%
 
