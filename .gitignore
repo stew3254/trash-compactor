@@ -2,6 +2,7 @@ cmake-build-debug/
 .idea/
 
 dragon
+cp-datastructures.sh
 
 y.tab.*
 lex.yy.*

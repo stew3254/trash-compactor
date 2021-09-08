@@ -1,7 +1,6 @@
 #ifndef list_h
 #define list_h
 
-#include <stdio.h>
 #include <stdbool.h>
 #include "simple_functions.h"
 

@@ -11,7 +11,7 @@
 %}
 
 number  	  [0-9]+
-ident       [a-z]+
+ident       [a-zA-Z][a-zA-Z0-9]*
 whitespace  [ \t]+
 comment     \(\*.*?\*\)
 
@@ -59,9 +59,9 @@ comment     \(\*.*?\*\)
 
 {number}        { fprintf(stderr, "[INUM:%d]", yylval.ival = atoi(yytext)); return INUM; }
 {number}"."{number}  { fprintf(stderr, "[RNUM:%f]", yylval.rval = atof(yytext)); return RNUM; }
-{ident}         { fprintf(stderr, "[ID:%s]", yylval.sval = strdup(yytext)); return ID; }
+{ident}         { fprintf(stderr, "[ID:%s]", yylval.sval = yytext); return ID; }
 "\n"            { fprintf(stderr, "[EOL]\n"); }
-.             	{ fprintf(stderr, "[%c]", yytext[0]); return yytext[0]; }
+.             	{ fprintf(stderr, "[%s]", yytext); return yytext[0]; }
 
 %%
 
