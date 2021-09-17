@@ -61,6 +61,15 @@ tree_node *tree_copy_from(tree *t, tree_node *n) {
   return new_n;
 }
 
+// A utility function to print preorder traversal of the tree given a print function
+void tree_print_withr(tree_node *node, void (p)(void *e)) {
+  if(node != NULL) {
+    tree_print_withr(node->left, p);
+    p(node->e);
+    tree_print_withr(node->right, p);
+  }
+}
+
 // A utility function to print preorder traversal of the tree.
 void tree_printr(tree_node *node, char *format) {
   if(node != NULL) {

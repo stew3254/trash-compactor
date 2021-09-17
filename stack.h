@@ -11,7 +11,7 @@ typedef struct Stack {
     void (*del) (void *e);
 } stack;
 
-// Create a enw stack
+// Create a new stack
 static inline stack *stack_new(void *(*copy) (const void *e), void (*del) (void *e)) {
   stack *s = malloc(sizeof(stack));
   // We don't actually need to do any comparisons
@@ -46,7 +46,7 @@ static inline void *stack_pop(stack *s) {
 }
 
 // Copy the stack
-static inline stack *stack_copy(stack *s) {
+static inline stack *stack_copy(const stack *s) {
   stack *new_s = malloc(sizeof(stack));
   new_s->data = list_copy(s->data);
   new_s->copy = s->copy;

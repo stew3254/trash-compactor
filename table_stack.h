@@ -26,6 +26,13 @@ static inline symbol *symbol_new(const int type) {
   return new_s;
 }
 
+static inline symbol *symbol_with(const int type, void *e) {
+  symbol *new_s = (symbol *) malloc(sizeof(symbol));
+  new_s->type = type;
+  new_s->attribute.sval = e;
+  return new_s;
+}
+
 // TODO fix this when you can tell it's a string for proper string copy
 static inline void *symbol_copy(const void *e) {
   symbol *s = (symbol*) e;

@@ -13,6 +13,12 @@ int yyerror(char *msg);
 
 table_stack *symbol_table;
 
+void print_symbol(symbol *e) {
+  // TODO do checking on this stuff
+  if (e != NULL)
+    printf("Type: %d, Attribute: %p\n", e->type, e->attribute.sval);
+}
+
 extern FILE *yyin;
 %}
 
@@ -42,7 +48,7 @@ extern FILE *yyin;
 %token PROGRAM
 %token BBEGIN END
 %token IF THEN ELSE IF_THEN IF_THEN_ELSE
-%token WHILE DO
+%token WHILE DO FOR TO
 
 %token VAR
 %token ARRAY OF
@@ -50,9 +56,9 @@ extern FILE *yyin;
 %token BOOL
 %token FUNCTION PROCEDURE
 
-%token TYPE
+%token TYPE ARRAY_TYPE
 %token PARAMETER
-%token DECLARATIONS SUBPROGRAM_DECLARATIONS SUBPROGRAM_DECLARATION
+%token DECLARATIONS SUBPROGRAM_DECLARATIONS SUBPROGRAM_DECLARATION SUBPROGRAM_HEAD
 %token IDENTIFIER_LIST STATEMENT_LIST PARAMETER_LIST EXPRESSION_LIST
 %token COMPOUND_STATEMENT
 
@@ -63,8 +69,8 @@ extern FILE *yyin;
 %type <tval> start
 %type <tval> identifier_list
 %type <tval> declarations
-%type <ival> type
-%type <ival> standard_type
+%type <tval> type
+%type <tval> standard_type
 %type <tval> subprogram_declarations
 %type <tval> subprogram_declaration
 %type <tval> subprogram_head
@@ -98,6 +104,8 @@ start: PROGRAM ID '(' identifier_list ')' ';'
 
       $$ = tree_make_from(symbol_new(PROGRAM), NULL, id_list);
       ((symbol*) $$->e)->attribute.sval = $2;
+
+      tree_print_withr($$, print_symbol);
 
       // Remove the global scope
       table_stack_pop(symbol_table);
@@ -152,12 +160,12 @@ declarations: declarations VAR identifier_list ':' type ';'
 
 type: standard_type
     {
-      $$ = 1;
+      $$ = tree_make_from(symbol_new(TYPE), NULL, NULL);
     }
   | ARRAY '[' INUM DOTDOT INUM ']' OF standard_type
     {
       // Make a tree node with proper bound checking on the array
-      $$ = ARRAY; // Incomplete
+      $$ = tree_make_from(symbol_new(ARRAY_TYPE), NULL, NULL);
     }
   ;
 
@@ -184,9 +192,14 @@ subprogram_declarations: subprogram_declarations subprogram_declaration ';'
 subprogram_declaration: subprogram_head declarations subprogram_declarations compound_statement
     {
       // TODO make a tree here
-      $$ = NULL;
+      // Create tree
+      tree_node *stmt = tree_make_from(symbol_new(COMPOUND_STATEMENT), $4, NULL);
+      tree_node *sub_dec = tree_make_from(symbol_new(SUBPROGRAM_DECLARATIONS), $3, stmt);
+      tree_node *dec = tree_make_from(symbol_new(DECLARATIONS), $2, sub_dec);
+
+      $$ = tree_make_from(symbol_new(SUBPROGRAM_HEAD), $1, dec);
     }
-  ;
+;
 
 subprogram_head: FUNCTION ID arguments ':' standard_type ';'
     {
@@ -263,9 +276,12 @@ statement: variable ASSIGNOP expression
     }
   | IF expression THEN statement ELSE statement
     {
-      // TODO make this a tree
-      // $$ = tree_make_from(symbol_new(IF_THEN_ELSE, $2, $4));
-      $$ = NULL;
+      symbol *else_s = symbol_new(ELSE);
+      tree_node *else_t = tree_make_from(else_s, $6, NULL);
+      symbol *then_s = symbol_new(THEN);
+      tree_node *then_t = tree_make_from(then_s, $4, else_t);
+      symbol *if_s = symbol_new(IF);
+      $$ = tree_make_from(if_s, $2, then_t);
     }
   | IF expression THEN statement
     {
@@ -279,13 +295,14 @@ statement: variable ASSIGNOP expression
 
 variable: ID
     {
-      symbol *sym;
+      symbol *sym = NULL;
       // See if the symbol exists
       if (table_stack_get(symbol_table, $1, &sym) != 1) {
         // If it does add it
-        tree_make_from(sym, NULL, NULL);
+        $$ = tree_make_from(sym, NULL, NULL);
       } else {
         fprintf(stderr, "This is bad, symbol not found\n");
+        exit(1);
       }
     }
   | ID '[' expression ']'
@@ -305,6 +322,17 @@ procedure_statement: ID
       ((symbol *) $$->e)->attribute.sval = $1;
     }
 ;
+
+  for_loop: FOR variable ASSIGNOP expression TO expression DO compound_statement
+  {
+    symbol *stmt_s = symbol_new(COMPOUND_STATEMENT);
+    tree_node *stmt_t = tree_make_from(else_s, $8, NULL);
+    symbol *do_s = symbol_new(DO);
+    tree_node *do_t = tree_make_from(then_s, $6, stmt_t);
+    symbol *assign_s = symbol_new(ASSIGNOP);
+    tree_node *assign_t = tree_make_from(assign_s, $2, $4);
+    $$ = tree_make_from(symbol_new(FOR), assign_t, do_s);
+  };
 
 expression_list: expression expression_list
     {

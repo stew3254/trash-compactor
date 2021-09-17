@@ -5,7 +5,7 @@
 
 //Default hashing function
 unsigned long hashpjw(const void *k, size_t n) {
-  unsigned long high;
+  unsigned long high = 0;
   unsigned long  h = 0;
 
   for (size_t i = 0; i < n; ++i) {
@@ -22,11 +22,13 @@ unsigned long hashpjw(const void *k, size_t n) {
 // Needed in key searching / sorting in the tree
 int map_simple_entry_cmp(const void *a, const void *b) {
   // Convert to a byte array and compare byte by byte
-  char *ak = (char *) &((hashmap_entry *) a)->key;
-  char *bk = (char *) &((hashmap_entry *) b)->key;
+  char *ak = (char *) ((hashmap_entry *) a)->key;
+  char *bk = (char *) ((hashmap_entry *) b)->key;
   size_t a_size = (size_t) ((hashmap_entry *) a)->key_size;
   size_t b_size = (size_t) ((hashmap_entry *) b)->key_size;
-  for (size_t i = 0; i < min(a_size, b_size); ++i) {
+  size_t a_len = (size_t) ((hashmap_entry *) a)->key_len;
+  size_t b_len = (size_t) ((hashmap_entry *) b)->key_len;
+  for (size_t i = 0; i < min(a_size*a_len, b_size*b_len); ++i) {
     if (ak[i] > bk[i])
       return 1;
     else if (ak[i] < bk[i])
@@ -75,10 +77,13 @@ void map_insert(hashmap *m, void **k, unsigned int key_size, unsigned int key_le
 
   // Wipe high bytes in key when size is less than 8
   // This is fine if 8 - key_size comes out to be 0
-  ptrdiff_t key = *k;
-  long shift = 8 - key_size;
-  if (shift > 0)
-    key = (key << shift*8) >> shift*8;
+  ptrdiff_t key = k;
+  if (key_len == 1) {
+    ptrdiff_t key = *k;
+    long shift = 8 - key_size;
+    if (shift > 0)
+      key = (key << shift*8) >> shift*8;
+  }
 
   // Initialize the entry
   hashmap_entry *e = (void *) malloc(sizeof(hashmap_entry));
@@ -97,15 +102,18 @@ void map_insert(hashmap *m, void **k, unsigned int key_size, unsigned int key_le
 
 // Get key from the map. If value_size is -1 then the value was not found
 int map_get(hashmap *m, void **k, unsigned int key_size, unsigned int key_len, void **v) {
-  unsigned int index = hashpjw(k, key_size) % m->bucket_size;
+  unsigned int index = hashpjw(k, key_size*key_len) % m->bucket_size;
   avl_tree *bucket = m->buckets[index];
 
   // Wipe high bytes in key when size is less than 8
   // This is fine if 8 - key_size comes out to be 0
-  ptrdiff_t key = *k;
-  long shift = 8 - key_size;
-  if (shift > 0)
-    key = (key << shift*8) >> shift*8;
+  ptrdiff_t key = k;
+  if (key_len == 1) {
+    ptrdiff_t key = *k;
+    long shift = 8 - key_size;
+    if (shift > 0)
+      key = (key << shift*8) >> shift*8;
+  }
 
   // Make entry to search with
   hashmap_entry entry = {
@@ -184,6 +192,28 @@ hashmap *map_copy(const hashmap *m) {
   new_m->len = m->len;
 
   return new_m;
+}
+
+// Print a hashmap with given function
+void map_print_with(const hashmap *m, void (p)(hashmap_entry *e)) {
+  list *l = avl_tree_to_list(m->buckets[0]);
+  for (unsigned int i = 1; i < m->bucket_size; ++i)
+    l = list_concat_consume(l, avl_tree_to_list(m->buckets[i]), return_elem);
+  if (m->len > 0)
+    printf("{\n");
+  else
+    printf("{");
+  for (list_node *n = l->head->next; n != l->tail; n = n->next) {
+    p(((hashmap_entry*)n->e));
+    if (n->next != l->tail) {
+      printf(",");
+    }
+    printf("\n");
+  }
+  printf("}");
+  // Reset deletion on list so we don't accidentally free the data
+  l->del = do_not_del;
+  list_del(l);
 }
 
 // Print a hashmap (Not exactly the most efficient but only to be used for debugging)

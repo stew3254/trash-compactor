@@ -122,7 +122,9 @@ list *map_values(const hashmap *m);
 hashmap *map_copy(const hashmap *m);
 
 /* Printing utilities */
-// Print a hashmap
+// Print a hashmap with given function
+void map_print_with(const hashmap *m, void (p)(hashmap_entry *e));
+// Print a hashmap with simple formats
 void map_print(const hashmap *m, char *key_format, char *value_format);
 // Print a hashmap but with a newline at the end
 static inline void map_println(const hashmap *m, char *key_format, char *value_format) {

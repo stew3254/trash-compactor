@@ -88,7 +88,14 @@ static inline tree_node *tree_make_from(void *e, tree_node *left, tree_node *rig
   return n;
 }
 
-// A utility function to print preorder traversal of the avl_tree.
+// A utility function to print preorder traversal of the tree given a print function
+void tree_print_withr(tree_node *node, void (p)(void *e));
+static inline void tree_print_with(tree *t, void (p)(void *e)) {
+  // Print 4 spaces between nodes
+  tree_print_withr(t->root, p);
+}
+
+// A utility function to print preorder traversal of the tree.
 void tree_printr(tree_node *node, char *format);
 static inline void tree_print(tree *t, char *format) {
   // Print 4 spaces between nodes
